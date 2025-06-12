@@ -1,6 +1,4 @@
 <div class="product-card bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-  <%= link_to product_path(product), class: "block" do %>
-
     <!-- Product Image -->
     <div class="aspect-w-1 aspect-h-1 w-full overflow-hidden bg-gray-200">
       <% if product.image_url.present? %>
@@ -58,26 +56,27 @@
 
         <!-- Quick Actions -->
         <div class="flex flex-col space-y-1">
-          <% if product.in_stock? %>
-            <button class="add-to-cart-btn px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    data-product-id="<%= product.id %>"
-                    onclick="event.preventDefault(); addToCart(<%= product.id %>)">
-              Add to Cart
-            </button>
-          <% else %>
-            <button class="px-3 py-1 bg-gray-300 text-gray-500 text-sm rounded cursor-not-allowed" disabled>
-              Out of Stock
-            </button>
+          <% if current_user %>
+            <% if product.in_stock? %>
+              <button class="add-to-cart-btn px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      data-product-id="<%= product.id %>"
+                      onclick="event.preventDefault(); addToCart(<%= product.id %>)">
+                Add to Cart
+              </button>
+            <% else %>
+              <button class="px-3 py-1 bg-gray-300 text-gray-500 text-sm rounded cursor-not-allowed" disabled>
+                Out of Stock
+              </button>
+            <% end %>
           <% end %>
 
           <span class="text-xs text-gray-500 text-center">
             <%= link_to "View Details", product_path(product),
-                       class: "text-blue-600 hover:text-blue-800" %>
+                       class: "text-blue-600 hover:text-blue-800", data: { turbo_frame: "_top" } %>
           </span>
         </div>
       </div>
     </div>
-  <% end %>
 </div>
 
 <script>

@@ -1,0 +1,212 @@
+<% content_for :title, @product.name %>
+
+<div class="product-show-page">
+  <div class="container mx-auto px-4 py-8">
+
+    <!-- Breadcrumb Navigation -->
+    <nav class="flex mb-8" aria-label="Breadcrumb">
+      <ol class="inline-flex items-center space-x-1 md:space-x-3">
+        <li class="inline-flex items-center">
+          <%= link_to products_path, class: "inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600" do %>
+            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+            </svg>
+            All Products
+          <% end %>
+        </li>
+        <li>
+          <div class="flex items-center">
+            <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            <%= link_to products_path(category: @product.category),
+                       class: "ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2" do %>
+              <%= @product.category %>
+            <% end %>
+          </div>
+        </li>
+        <li aria-current="page">
+          <div class="flex items-center">
+            <svg class="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+            </svg>
+            <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2 truncate">
+              <%= truncate(@product.name, length: 50) %>
+            </span>
+          </div>
+        </li>
+      </ol>
+    </nav>
+
+    <!-- Product Details Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+
+      <!-- Product Image -->
+      <div class="product-image">
+        <div class="aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-lg bg-gray-200">
+          <% if @product.image_url.present? %>
+            <%= image_tag @product.image_url,
+                         alt: @product.name,
+                         class: "h-full w-full object-cover object-center",
+                         loading: "lazy" %>
+          <% else %>
+            <div class="h-full w-full bg-gray-300 flex items-center justify-center">
+              <svg class="h-24 w-24 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Product Information -->
+      <div class="product-info">
+
+        <!-- Category Badge -->
+        <div class="mb-4">
+          <%= link_to products_path(category: @product.category),
+                     class: "inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200" do %>
+            <%= @product.category %>
+          <% end %>
+        </div>
+
+        <!-- Product Name -->
+        <h1 class="text-3xl font-bold text-gray-900 mb-4">
+          <%= @product.name %>
+        </h1>
+
+        <!-- Price -->
+        <div class="mb-6">
+          <span class="text-4xl font-bold text-gray-900">
+            <%= @product.formatted_price %>
+          </span>
+        </div>
+
+        <!-- Stock Status -->
+        <div class="mb-6">
+          <% if @product.in_stock? %>
+            <div class="flex items-center text-green-600">
+              <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+              </svg>
+              <span class="font-medium">
+                In Stock - <%= pluralize(@product.stock_quantity, 'item') %> available
+              </span>
+            </div>
+          <% else %>
+            <div class="flex items-center text-red-600">
+              <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+              </svg>
+              <span class="font-medium">Out of Stock</span>
+            </div>
+          <% end %>
+        </div>
+
+        <!-- Add to Cart Section -->
+        <div class="mb-8">
+          <% if @product.in_stock? %>
+            <% if user_signed_in? %>
+              <%= form_with url: cart_items_path, method: :post,
+                           data: { controller: "cart", turbo: false },
+                           class: "add-to-cart-form" do |form| %>
+                <%= form.hidden_field :product_id, value: @product.id %>
+
+                <div class="flex items-center space-x-4 mb-4">
+                  <label for="quantity" class="text-sm font-medium text-gray-700">
+                    Quantity:
+                  </label>
+                  <%= form.number_field :quantity,
+                                       value: 1,
+                                       min: 1,
+                                       max: [@product.stock_quantity, 10].min,
+                                       class: "w-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+                </div>
+
+                <%= form.submit "Add to Cart",
+                               class: "w-full bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200" %>
+              <% end %>
+            <% else %>
+              <div class="space-y-3">
+                <%= link_to "Sign In to Purchase", new_user_session_path,
+                           class: "block w-full bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 text-center transition-colors duration-200" %>
+                <p class="text-sm text-gray-600 text-center">
+                  <%= link_to "New customer? Create an account", new_user_registration_path,
+                             class: "text-blue-600 hover:text-blue-800" %>
+                </p>
+              </div>
+            <% end %>
+          <% else %>
+            <button class="w-full bg-gray-300 text-gray-500 px-6 py-3 rounded-lg font-medium cursor-not-allowed" disabled>
+              Out of Stock
+            </button>
+          <% end %>
+        </div>
+
+        <!-- Product Description -->
+        <div class="mb-8">
+          <h3 class="text-lg font-semibold text-gray-900 mb-3">Description</h3>
+          <div class="prose prose-sm text-gray-600">
+            <%= simple_format(@product.description) %>
+          </div>
+        </div>
+
+        <!-- Product Details -->
+        <div class="border-t pt-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Product Details</h3>
+          <dl class="grid grid-cols-1 gap-3">
+            <div class="flex justify-between">
+              <dt class="text-sm font-medium text-gray-500">Category</dt>
+              <dd class="text-sm text-gray-900"><%= @product.category %></dd>
+            </div>
+            <div class="flex justify-between">
+              <dt class="text-sm font-medium text-gray-500">Stock Quantity</dt>
+              <dd class="text-sm text-gray-900"><%= @product.stock_quantity %></dd>
+            </div>
+            <div class="flex justify-between">
+              <dt class="text-sm font-medium text-gray-500">Added</dt>
+              <dd class="text-sm text-gray-900"><%= @product.created_at.strftime("%B %d, %Y") %></dd>
+            </div>
+            <div class="flex justify-between">
+              <dt class="text-sm font-medium text-gray-500">Product ID</dt>
+              <dd class="text-sm text-gray-900">#<%= @product.id.to_s.rjust(6, '0') %></dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <!-- Related Products Section -->
+    <% if @related_products.any? %>
+      <div class="related-products">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl font-bold text-gray-900">
+            You might also like
+          </h2>
+          <%= link_to "View all #{@product.category}",
+                     products_path(category: @product.category),
+                     class: "text-blue-600 hover:text-blue-800 font-medium" %>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <% @related_products.each do |product| %>
+            <%= render "product_card", product: product %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Back to Products Link -->
+    <div class="mt-12 text-center">
+      <%= link_to products_path,
+                 class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500" do %>
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        Back to All Products
+      <% end %>
+    </div>
+
+  </div>
+</div>

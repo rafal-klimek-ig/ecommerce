@@ -1,5 +1,21 @@
 <div class="products-grid">
   <%= puts "products: #{products}" %>
+  <!-- Results Summary -->
+  <div class="flex justify-between items-center mb-6">
+    <div class="text-gray-600">
+      <% if @search_term.present? %>
+        Showing <strong><%= @total_count %></strong> results for "<%= @search_term %>"
+        <% if @current_category.present? %>
+          in <strong><%= @current_category %></strong>
+        <% end %>
+      <% elsif @current_category.present? %>
+        Showing <strong><%= @total_count %></strong> products in <strong><%= @current_category %></strong>
+      <% else %>
+        Showing <strong><%= @total_count %></strong> products
+      <% end %>
+    </div>
+  </div>
+
   <% if products.any? %>
     <!-- Products Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
@@ -12,7 +28,6 @@
     <% if products.respond_to?(:total_pages) && products.total_pages > 1 %>
       <div class="pagination-wrapper">
         <%= paginate products,
-                     theme: 'twitter_bootstrap_4',
                      params: { search: params[:search], category: params[:category], sort: params[:sort], min_price: params[:min_price], max_price: params[:max_price] },
                      remote: true,
                      data: { turbo_frame: "products_list" } %>

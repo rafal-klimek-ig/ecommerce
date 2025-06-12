@@ -12,16 +12,11 @@ class ProductsController < ApplicationController
     @products = @products.page(params[:page]).per(params[:per_page] || 12)
 
     respond_to do |format|
-      format.html do
-        if @products.present? && params[:search].present? || params[:category].present? || params[:sort].present?
-          # Render only the products partial for Turbo Frame updates
-          render turbo_stream: turbo_stream.replace("products_list",
-            partial: "products/products_list",
-            locals: { products: @products, total_count: @total_count })
-        else
-          # Regular full page render
-          render :index
-        end
+      format.html { render :index }
+      format.turbo_stream do
+        turbo_stream.replace("products_list",
+        partial: "products/products_list",
+        locals: { products: @products, total_count: @total_count })
       end
       format.json { render json: products_json }
     end
@@ -40,7 +35,6 @@ class ProductsController < ApplicationController
   end
 
   def search
-    # This method is now handled by index with Turbo
     redirect_to products_path(search: params[:search], category: params[:category])
   end
 
