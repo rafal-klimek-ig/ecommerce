@@ -1,0 +1,63 @@
+<div class="products-grid">
+  <%= puts "products: #{products}" %>
+  <% if products.any? %>
+    <!-- Products Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+      <% products.each do |product| %>
+        <%= render "product_card", product: product %>
+      <% end %>
+    </div>
+
+    <!-- Pagination -->
+    <% if products.respond_to?(:total_pages) && products.total_pages > 1 %>
+      <div class="pagination-wrapper">
+        <%= paginate products,
+                     theme: 'twitter_bootstrap_4',
+                     params: { search: params[:search], category: params[:category], sort: params[:sort], min_price: params[:min_price], max_price: params[:max_price] },
+                     remote: true,
+                     data: { turbo_frame: "products_list" } %>
+      </div>
+    <% end %>
+
+  <% else %>
+    <!-- No Results -->
+    <div class="no-results text-center py-12">
+      <div class="max-w-md mx-auto">
+        <h3 class="mt-2 text-sm font-medium text-gray-900">No products found</h3>
+
+        <% if params[:search].present? %>
+          <p class="mt-1 text-sm text-gray-500">
+            No products match "<strong><%= params[:search] %></strong>"
+            <% if params[:category].present? %>
+              in <strong><%= params[:category] %></strong>
+            <% end %>
+          </p>
+
+          <div class="mt-6">
+            <%= link_to "Clear search", products_path,
+                       class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200",
+                       data: { turbo_frame: "products_list" } %>
+          </div>
+
+          <!-- Search Suggestions -->
+          <div class="mt-4 text-sm text-gray-500">
+            <p>Try:</p>
+            <ul class="mt-2 space-y-1">
+              <li>• Checking your spelling</li>
+              <li>• Using different keywords</li>
+              <li>• Browsing categories instead</li>
+            </ul>
+          </div>
+
+        <% else %>
+          <p class="mt-1 text-sm text-gray-500">
+            No products available at the moment.
+          </p>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<!-- Loading indicator for Turbo -->
+<div class="hidden turbo-progress-bar"></div>

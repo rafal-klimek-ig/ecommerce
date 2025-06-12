@@ -1,0 +1,127 @@
+<% content_for :title, "Products" %>
+
+<div class="products-page">
+  <div class="container mx-auto px-4 py-8">
+
+    <!-- Search and Filter Form -->
+    <%= form_with url: products_path, method: :get,
+                  data: {
+                    controller: "search",
+                    turbo_frame: "products_list",
+                    turbo_action: "advance"
+                  },
+                  local: true, class: "search-form mb-8" do |form| %>
+
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+
+          <!-- Search Input -->
+          <div>
+            <%= form.label :search, "Search Products", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.text_field :search,
+                               value: @search_term,
+                               placeholder: "Search by name or description...",
+                               class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
+                               data: {
+                                 action: "input->search#search"
+                               } %>
+          </div>
+
+          <!-- Category Filter -->
+          <div>
+            <%= form.label :category, "Category", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.select :category,
+                           options_for_select([["All Categories", ""]] + @categories.map { |c| [c, c] }, @current_category),
+                           {},
+                           {
+                             class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
+                             data: { action: "change->search#submit" }
+                           } %>
+          </div>
+
+          <!-- Sort Options -->
+          <div>
+            <%= form.label :sort, "Sort By", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.select :sort,
+                           options_for_select([
+                             ["Relevance", ""],
+                             ["Price: Low to High", "price_low"],
+                             ["Price: High to Low", "price_high"],
+                             ["Name A-Z", "name"],
+                             ["Newest First", "newest"],
+                             ["Most Popular", "popularity"]
+                           ], params[:sort]),
+                           {},
+                           {
+                             class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
+                             data: { action: "change->search#submit" }
+                           } %>
+          </div>
+
+          <!-- Search Button -->
+          <div>
+            <%= form.submit "Search",
+                           class: "w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+          </div>
+        </div>
+
+        <!-- Price Range Filters -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <div>
+            <%= form.label :min_price, "Min Price", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.number_field :min_price,
+                                 value: params[:min_price],
+                                 step: 0.01,
+                                 min: 0,
+                                 placeholder: "0.00",
+                                 class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+          </div>
+          <div>
+            <%= form.label :max_price, "Max Price", class: "block text-sm font-medium text-gray-700 mb-2" %>
+            <%= form.number_field :max_price,
+                                 value: params[:max_price],
+                                 step: 0.01,
+                                 min: 0,
+                                 placeholder: "999.99",
+                                 class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+          </div>
+        </div>
+
+        <!-- Clear Filters -->
+        <% if params[:search].present? || params[:category].present? || params[:sort].present? || params[:min_price].present? || params[:max_price].present? %>
+          <div class="mt-4">
+            <%= button_to "Clear All Filters", products_path,
+                         method: :get,
+                         class: "text-blue-600 hover:text-blue-800 text-sm bg-transparent border-none cursor-pointer",
+                         data: {
+                           turbo_frame: "products_list",
+                           action: "click->search#clear"
+                         } %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- Results Summary -->
+    <div class="flex justify-between items-center mb-6">
+      <div class="text-gray-600">
+        <% if @search_term.present? %>
+          Showing <strong><%= @total_count %></strong> results for "<%= @search_term %>"
+          <% if @current_category.present? %>
+            in <strong><%= @current_category %></strong>
+          <% end %>
+        <% elsif @current_category.present? %>
+          Showing <strong><%= @total_count %></strong> products in <strong><%= @current_category %></strong>
+        <% else %>
+          Showing <strong><%= @total_count %></strong> products
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Products List (Turbo Frame) -->
+    <%= turbo_frame_tag "products_list" do %>
+      <%= render "products_list", products: @products, total_count: @total_count %>
+    <% end %>
+
+  </div>
+</div>

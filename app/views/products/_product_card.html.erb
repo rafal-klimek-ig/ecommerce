@@ -1,0 +1,89 @@
+<div class="product-card bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+  <%= link_to product_path(product), class: "block" do %>
+
+    <!-- Product Image -->
+    <div class="aspect-w-1 aspect-h-1 w-full overflow-hidden bg-gray-200">
+      <% if product.image_url.present? %>
+        <%= image_tag product.image_url,
+                     alt: product.name,
+                     class: "h-48 w-full object-cover object-center group-hover:opacity-75",
+                     loading: "lazy" %>
+      <% else %>
+        <div class="h-48 w-full bg-gray-300 flex items-center justify-center">
+          <svg class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Product Info -->
+    <div class="p-4">
+      <!-- Category Badge -->
+      <div class="mb-2">
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+          <%= product.category %>
+        </span>
+      </div>
+
+      <!-- Product Name -->
+      <h3 class="text-lg font-medium text-gray-900 mb-2 line-clamp-2">
+        <%= product.name %>
+      </h3>
+
+      <!-- Product Description -->
+      <p class="text-sm text-gray-600 mb-3 line-clamp-2">
+        <%= truncate(product.description, length: 100) %>
+      </p>
+
+      <!-- Price and Stock -->
+      <div class="flex items-center justify-between">
+        <div class="flex flex-col">
+          <span class="text-xl font-bold text-gray-900">
+            <%= product.formatted_price %>
+          </span>
+
+          <!-- Stock Status -->
+          <% if product.in_stock? %>
+            <span class="text-sm text-green-600">
+              <%= pluralize(product.stock_quantity, 'item') %> in stock
+            </span>
+          <% else %>
+            <span class="text-sm text-red-600">
+              Out of stock
+            </span>
+          <% end %>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="flex flex-col space-y-1">
+          <% if product.in_stock? %>
+            <button class="add-to-cart-btn px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    data-product-id="<%= product.id %>"
+                    onclick="event.preventDefault(); addToCart(<%= product.id %>)">
+              Add to Cart
+            </button>
+          <% else %>
+            <button class="px-3 py-1 bg-gray-300 text-gray-500 text-sm rounded cursor-not-allowed" disabled>
+              Out of Stock
+            </button>
+          <% end %>
+
+          <span class="text-xs text-gray-500 text-center">
+            <%= link_to "View Details", product_path(product),
+                       class: "text-blue-600 hover:text-blue-800" %>
+          </span>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  function addToCart(productId) {
+    // This will be implemented when we create the cart functionality
+    console.log('Adding product', productId, 'to cart');
+    // You can implement this with Turbo Stream or Stimulus
+  }
+</script>
