@@ -9,18 +9,12 @@ user1 = User.create!(
   email: 'john@example.com',
   password: 'password123',
   password_confirmation: 'password123',
-  first_name: 'John',
-  last_name: 'Doe',
-  phone: '+1-555-0123'
 )
 
 user2 = User.create!(
   email: 'jane@example.com',
   password: 'password123',
   password_confirmation: 'password123',
-  first_name: 'Jane',
-  last_name: 'Smith',
-  phone: '+1-555-0456'
 )
 
 puts "✅ Created #{User.count} users!"
@@ -316,121 +310,108 @@ end
 
 puts "\n✅ Created #{Product.count} products!"
 
-puts "Creating completed orders..."
+# puts "Creating completed orders..."
 
-def create_order(user, products_data, status, days_ago = 0)
-  order = user.orders.create!(
-    email: user.email,
-    first_name: user.first_name,
-    last_name: user.last_name,
-    address_line_1: "#{rand(100..9999)} #{['Main St', 'Oak Ave', 'Pine Rd', 'Elm Dr'].sample}",
-    address_line_2: rand(1..10) > 7 ? "Apt #{rand(1..20)}" : nil,
-    city: ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix'].sample,
-    state: ['NY', 'CA', 'IL', 'TX', 'AZ'].sample,
-    postal_code: sprintf("%05d", rand(10000..99999)),
-    country: 'US',
-    status: status,
-    total_amount: 0, # Will be calculated
-    created_at: days_ago.days.ago,
-    updated_at: days_ago.days.ago
-  )
+# def create_order(user, products_data, status, days_ago = 0)
+#   order = user.orders.create!(
+#     address_line_1: "#{rand(100..9999)} #{['Main St', 'Oak Ave', 'Pine Rd', 'Elm Dr'].sample}",
+#     address_line_2: rand(1..10) > 7 ? "Apt #{rand(1..20)}" : nil,
+#     city: ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix'].sample,
+#     state: ['NY', 'CA', 'IL', 'TX', 'AZ'].sample,
+#     postal_code: sprintf("%05d", rand(10000..99999)),
+#     status: status,
+#     created_at: days_ago.days.ago,
+#     updated_at: days_ago.days.ago
+#   )
 
-  products_data.each do |product_data|
-    product = Product.find_by(name: product_data[:name])
-    next unless product
+#   products_data.each do |product_data|
+#     product = Product.find_by(name: product_data[:name])
+#     next unless product
 
-    order.order_items.create!(
-      product: product,
-      quantity: product_data[:quantity],
-      unit_price: product.price,
-      total_price: product.price * product_data[:quantity]
-    )
-  end
+#     order.order_items.create!(
+#       product: product,
+#       quantity: product_data[:quantity],
+#       unit_price: product.price,
+#       total_price: product.price * product_data[:quantity]
+#     )
+#   end
 
-  order.update!(total_amount: order.order_items.sum(:total_price))
-  order
-end
+#   order.update!(total_amount: order.order_items.sum(:total_price))
+#   order
+# end
 
-create_order(user1, [
-  { name: 'MacBook Pro 16-inch M3', quantity: 1 },
-  { name: 'Sony WH-1000XM5 Headphones', quantity: 1 }
-], 'delivered', 30)
+# create_order(user1, [
+#   { name: 'MacBook Pro 16-inch M3', quantity: 1 },
+#   { name: 'Sony WH-1000XM5 Headphones', quantity: 1 }
+# ], 'delivered', 30)
 
-create_order(user1, [
-  { name: 'Levi\'s 501 Original Jeans', quantity: 2 },
-  { name: 'Nike Air Max 270 Sneakers', quantity: 1 },
-  { name: 'Champion Reverse Weave Hoodie', quantity: 1 }
-], 'delivered', 15)
+# create_order(user1, [
+#   { name: 'Levi\'s 501 Original Jeans', quantity: 2 },
+#   { name: 'Nike Air Max 270 Sneakers', quantity: 1 },
+#   { name: 'Champion Reverse Weave Hoodie', quantity: 1 }
+# ], 'delivered', 15)
 
-create_order(user1, [
-  { name: 'iPhone 15 Pro Max', quantity: 1 },
-  { name: 'Hydro Flask 32oz Water Bottle', quantity: 2 }
-], 'shipped', 3)
+# create_order(user1, [
+#   { name: 'iPhone 15 Pro Max', quantity: 1 },
+#   { name: 'Hydro Flask 32oz Water Bottle', quantity: 2 }
+# ], 'shipped', 3)
 
-create_order(user2, [
-  { name: 'KitchenAid Stand Mixer', quantity: 1 },
-  { name: 'Instant Pot Duo 7-in-1', quantity: 1 },
-  { name: 'The Seven Husbands of Evelyn Hugo', quantity: 1 }
-], 'delivered', 45)
+# create_order(user2, [
+#   { name: 'KitchenAid Stand Mixer', quantity: 1 },
+#   { name: 'Instant Pot Duo 7-in-1', quantity: 1 },
+#   { name: 'The Seven Husbands of Evelyn Hugo', quantity: 1 }
+# ], 'delivered', 45)
 
-create_order(user2, [
-  { name: 'Samsung 65-inch QLED 4K TV', quantity: 1 },
-  { name: 'Nintendo Switch OLED', quantity: 1 },
-  { name: 'Patagonia Better Sweater Fleece', quantity: 1 }
-], 'processing', 7)
+# create_order(user2, [
+#   { name: 'Samsung 65-inch QLED 4K TV', quantity: 1 },
+#   { name: 'Nintendo Switch OLED', quantity: 1 },
+#   { name: 'Patagonia Better Sweater Fleece', quantity: 1 }
+# ], 'processing', 7)
 
-puts "Creating current shopping carts..."
+# puts "Creating current shopping carts..."
 
-current_cart_john = user1.orders.create!(
-  email: user1.email,
-  first_name: user1.first_name,
-  last_name: user1.last_name,
-  address_line_1: '',
-  city: '',
-  state: '',
-  postal_code: '',
-  country: 'US',
-  status: 'pending',
-  total_amount: 0
-)
+# current_cart_john = user1.orders.create!(
+#   address_line_1: '',
+#   city: '',
+#   state: '',
+#   postal_code: '',
+#   status: 'pending',
+#   total_amount: 0
+# )
 
-current_cart_john.order_items.create!([
-  {
-    product: Product.find_by(name: 'iPad Air 11-inch'),
-    quantity: 1,
-    unit_price: Product.find_by(name: 'iPad Air 11-inch').price
-  },
-  {
-    product: Product.find_by(name: 'Atomic Habits by James Clear'),
-    quantity: 2,
-    unit_price: Product.find_by(name: 'Atomic Habits by James Clear').price
-  }
-])
+# current_cart_john.order_items.create!([
+#   {
+#     product: Product.find_by(name: 'iPad Air 11-inch'),
+#     quantity: 1,
+#     unit_price: Product.find_by(name: 'iPad Air 11-inch').price
+#   },
+#   {
+#     product: Product.find_by(name: 'Atomic Habits by James Clear'),
+#     quantity: 2,
+#     unit_price: Product.find_by(name: 'Atomic Habits by James Clear').price
+#   }
+# ])
 
-current_cart_john.update!(total_amount: current_cart_john.order_items.sum { |item| item.unit_price * item.quantity })
+# current_cart_john.update!(total_amount: current_cart_john.order_items.sum { |item| item.unit_price * item.quantity })
 
-current_cart_jane = user2.orders.create!(
-  email: user2.email,
-  first_name: user2.first_name,
-  last_name: user2.last_name,
-  address_line_1: '',
-  city: '',
-  state: '',
-  postal_code: '',
-  country: 'US',
-  status: 'pending',
-  total_amount: 0
-)
+# current_cart_jane = user2.orders.create!(
+#   address_line_1: '',
+#   city: '',
+#   state: '',
+#   postal_code: '',
+#   status: 'pending',
+#   total_amount: 0
+# )
 
-current_cart_jane.order_items.create!([
-  {
-    product: Product.find_by(name: 'Dyson V15 Detect Cordless Vacuum'),
-    quantity: 1,
-    unit_price: Product.find_by(name: 'Dyson V15 Detect Cordless Vacuum').price
-  }
-])
+# current_cart_jane.order_items.create!([
+#   {
+#     product: Product.find_by(name: 'Dyson V15 Detect Cordless Vacuum'),
+#     quantity: 1,
+#     unit_price: Product.find_by(name: 'Dyson V15 Detect Cordless Vacuum').price
+#   }
+# ])
 
-current_cart_jane.update!(total_amount: current_cart_jane.order_items.sum { |item| item.unit_price * item.quantity })
+# current_cart_jane.update!(total_amount: current_cart_jane.order_items.sum { |item| item.unit_price * item.quantity })
 
 puts "✅ Created orders and shopping carts!"
 puts "📊 Order summary:"

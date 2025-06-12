@@ -1,6 +1,6 @@
 class Order < ApplicationRecord
   class OrderStatus
-    include Ruby::Enum
+    include ::Ruby::Enum
 
     define :PENDING, 'pending'
     define :PAID, 'paid'
@@ -55,6 +55,10 @@ class Order < ApplicationRecord
       def completed_statuses
         [DELIVERED, CANCELLED, REFUNDED]
       end
+
+      def predelivery_statuses
+        [PENDING, CANCELLED]
+      end
     end
   end
 
@@ -62,13 +66,19 @@ class Order < ApplicationRecord
   has_many :order_items, dependent: :destroy
   has_many :products, through: :order_items
 
-  validates :address_line_1, presence: true, length: { minimum: 5, maximum: 100 }
-  validates :city, presence: true, length: { minimum: 2, maximum: 50 }
-  validates :state, presence: true, length: { minimum: 2, maximum: 50 }
-  validates :postal_code, presence: true, length: { minimum: 3, maximum: 20 }
-  validates :country, presence: true, length: { minimum: 2, maximum: 50 }
+  validates :address_line_1, presence: true, length: { minimum: 5, maximum: 100 },
+            unless: -> { status.in?(OrderStatus.predelivery_statuses) }
+  validates :city, presence: true, length: { minimum: 2, maximum: 50 },
+            unless: -> { status.in?(OrderStatus.predelivery_statuses) }
+  validates :state, presence: true, length: { minimum: 2, maximum: 50 },
+            unless: -> { status.in?(OrderStatus.predelivery_statuses) }
+  validates :postal_code, presence: true, length: { minimum: 3, maximum: 20 },
+            unless: -> { status.in?(OrderStatus.predelivery_statuses) }
+  validates :country, presence: true, length: { minimum: 2, maximum: 50 },
+            unless: -> { status.in?(OrderStatus.predelivery_statuses) }
   validates :total_amount, presence: true,
-                          numericality: { greater_than: 0 }
+                          numericality: { greater_than: 0 },
+                          unless: -> { status.in?(OrderStatus.predelivery_statuses) }
   validates :status, presence: true,
                     inclusion: { in: OrderStatus.values }
 
@@ -78,7 +88,7 @@ class Order < ApplicationRecord
   before_validation :calculate_total_amount, on: [:create, :update]
 
   def full_address
-    address_parts = [address_line_1, address_line_2, city, state, postal_code, country]
+    address_parts = [address_line_1, address_line_2, city, state, postal_code]
     address_parts.compact.join(', ')
   end
 

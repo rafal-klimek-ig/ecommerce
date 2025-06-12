@@ -1,3 +1,5 @@
+<!-- app/views/products/show.html.erb -->
+
 <% content_for :title, @product.name %>
 
 <div class="product-show-page">
@@ -108,7 +110,7 @@
         <div class="mb-8">
           <% if @product.in_stock? %>
             <% if user_signed_in? %>
-              <%= form_with url: cart_items_path, method: :post,
+              <%= form_with url: add_item_orders_path, method: :post,
                            data: { controller: "cart", turbo: false },
                            class: "add-to-cart-form" do |form| %>
                 <%= form.hidden_field :product_id, value: @product.id %>
@@ -120,7 +122,7 @@
                   <%= form.number_field :quantity,
                                        value: 1,
                                        min: 1,
-                                       max: [@product.stock_quantity, 10].min,
+                                       max: [@product.stock_quantity, 100].min,
                                        class: "w-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" %>
                 </div>
 

@@ -62,5 +62,6 @@ group :test do
   gem "selenium-webdriver"
 end
 gem 'kaminari'
-
+gem "tailwindcss-rails"
+gem "ruby-enum"
 gem "devise", "~> 4.9"

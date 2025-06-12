@@ -1,0 +1,204 @@
+<% content_for :title, "Checkout" %>
+
+<div class="checkout-page">
+  <div class="container mx-auto px-4 py-8">
+
+    <!-- Page Header -->
+    <div class="flex items-center justify-between mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Checkout</h1>
+      <%= link_to "Back to Cart", cart_path,
+                 class: "text-blue-600 hover:text-blue-800 font-medium" %>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+      <!-- Checkout Form -->
+      <div class="lg:col-span-2">
+        <%= form_with model: @order, url: orders_path, method: :post,
+                     data: { turbo: false },
+                     class: "space-y-6" do |form| %>
+
+          <!-- Shipping Address -->
+          <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200">
+              <h2 class="text-lg font-semibold text-gray-900">Shipping Address</h2>
+            </div>
+
+            <div class="p-6 space-y-4">
+              <div>
+                <%= form.label :address_line_1, "Street Address", class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <%= form.text_field :address_line_1,
+                                   placeholder: "123 Main Street",
+                                   class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
+                                   required: true %>
+              </div>
+
+              <div>
+                <%= form.label :address_line_2, "Apartment, suite, etc. (optional)", class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <%= form.text_field :address_line_2,
+                                   placeholder: "Apt 4B",
+                                   class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <%= form.label :city, "City", class: "block text-sm font-medium text-gray-700 mb-2" %>
+                  <%= form.text_field :city,
+                                     class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
+                                     required: true %>
+                </div>
+
+                <div>
+                  <%= form.label :state, "State", class: "block text-sm font-medium text-gray-700 mb-2" %>
+                  <%= form.select :state,
+                                 options_for_select([
+                                   ['Select State', ''],
+                                   ['Alabama', 'AL'], ['Alaska', 'AK'], ['Arizona', 'AZ'], ['Arkansas', 'AR'],
+                                   ['California', 'CA'], ['Colorado', 'CO'], ['Connecticut', 'CT'], ['Delaware', 'DE'],
+                                   ['Florida', 'FL'], ['Georgia', 'GA'], ['Hawaii', 'HI'], ['Idaho', 'ID'],
+                                   ['Illinois', 'IL'], ['Indiana', 'IN'], ['Iowa', 'IA'], ['Kansas', 'KS'],
+                                   ['Kentucky', 'KY'], ['Louisiana', 'LA'], ['Maine', 'ME'], ['Maryland', 'MD'],
+                                   ['Massachusetts', 'MA'], ['Michigan', 'MI'], ['Minnesota', 'MN'], ['Mississippi', 'MS'],
+                                   ['Missouri', 'MO'], ['Montana', 'MT'], ['Nebraska', 'NE'], ['Nevada', 'NV'],
+                                   ['New Hampshire', 'NH'], ['New Jersey', 'NJ'], ['New Mexico', 'NM'], ['New York', 'NY'],
+                                   ['North Carolina', 'NC'], ['North Dakota', 'ND'], ['Ohio', 'OH'], ['Oklahoma', 'OK'],
+                                   ['Oregon', 'OR'], ['Pennsylvania', 'PA'], ['Rhode Island', 'RI'], ['South Carolina', 'SC'],
+                                   ['South Dakota', 'SD'], ['Tennessee', 'TN'], ['Texas', 'TX'], ['Utah', 'UT'],
+                                   ['Vermont', 'VT'], ['Virginia', 'VA'], ['Washington', 'WA'], ['West Virginia', 'WV'],
+                                   ['Wisconsin', 'WI'], ['Wyoming', 'WY']
+                                 ], @order.state),
+                                 {},
+                                 {
+                                   class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
+                                   required: true
+                                 } %>
+                </div>
+
+                <div>
+                  <%= form.label :postal_code, "ZIP Code", class: "block text-sm font-medium text-gray-700 mb-2" %>
+                  <%= form.text_field :postal_code,
+                                     placeholder: "12345",
+                                     class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
+                                     required: true %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Order Notes -->
+          <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200">
+              <h2 class="text-lg font-semibold text-gray-900">Order Notes (Optional)</h2>
+            </div>
+
+            <div class="p-6">
+              <%= form.text_area :notes,
+                                placeholder: "Special delivery instructions, gift message, etc.",
+                                rows: 3,
+                                class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+            </div>
+          </div>
+
+          <!-- Place Order Button -->
+          <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="p-6">
+              <%= form.submit "Place Order",
+                             class: "w-full bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg transition-colors duration-200" %>
+
+              <p class="text-sm text-gray-500 text-center mt-3">
+                By placing your order, you agree to our Terms of Service and Privacy Policy.
+              </p>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Order Summary Sidebar -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 sticky top-4">
+
+          <!-- Order Items -->
+          <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">Order Summary</h2>
+          </div>
+
+          <div class="p-6 space-y-4">
+            <!-- Items List -->
+            <div class="space-y-3">
+              <% @order.order_items.includes(:product).each do |item| %>
+                <div class="flex items-center space-x-3">
+                  <div class="flex-shrink-0">
+                    <% if item.product.image_url.present? %>
+                      <%= image_tag item.product.image_url,
+                                   alt: item.product.name,
+                                   class: "h-12 w-12 object-cover rounded" %>
+                    <% else %>
+                      <div class="h-12 w-12 bg-gray-200 rounded flex items-center justify-center">
+                        <svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                    <% end %>
+                  </div>
+
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-900 truncate">
+                      <%= item.product.name %>
+                    </p>
+                    <p class="text-sm text-gray-500">
+                      Qty: <%= item.quantity %> × <%= item.formatted_unit_price %>
+                    </p>
+                  </div>
+
+                  <div class="text-sm font-medium text-gray-900">
+                    <%= item.formatted_total_price %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+
+            <!-- Pricing Breakdown -->
+            <div class="border-t pt-4 space-y-2">
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600">Subtotal</span>
+                <span class="text-gray-900">$<%= '%.2f' % @subtotal %></span>
+              </div>
+
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600">Shipping</span>
+                <span class="text-gray-900">
+                  <% if @shipping_cost == 0 %>
+                    <span class="text-green-600">FREE</span>
+                  <% else %>
+                    $<%= '%.2f' % @shipping_cost %>
+                  <% end %>
+                </span>
+              </div>
+
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600">Tax</span>
+                <span class="text-gray-900">$<%= '%.2f' % @tax_amount %></span>
+              </div>
+
+              <div class="border-t pt-2">
+                <div class="flex justify-between text-lg font-semibold">
+                  <span class="text-gray-900">Total</span>
+                  <span class="text-gray-900">$<%= '%.2f' % @total_amount %></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Free Shipping Notice -->
+            <% if @shipping_cost > 0 %>
+              <div class="text-sm text-blue-600 bg-blue-50 p-3 rounded">
+                Add $<%= '%.2f' % (50 - @subtotal) %> more for FREE shipping!
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
