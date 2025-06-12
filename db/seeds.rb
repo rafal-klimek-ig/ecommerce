@@ -1,20 +1,32 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
-# db/seeds.rb
-
-# Clear existing products
+OrderItem.destroy_all
+Order.destroy_all
+User.destroy_all
 Product.destroy_all
+
+puts "Creating users..."
+
+user1 = User.create!(
+  email: 'john@example.com',
+  password: 'password123',
+  password_confirmation: 'password123',
+  first_name: 'John',
+  last_name: 'Doe',
+  phone: '+1-555-0123'
+)
+
+user2 = User.create!(
+  email: 'jane@example.com',
+  password: 'password123',
+  password_confirmation: 'password123',
+  first_name: 'Jane',
+  last_name: 'Smith',
+  phone: '+1-555-0456'
+)
+
+puts "✅ Created #{User.count} users!"
 
 puts "Creating products..."
 
-# Electronics Category
 electronics = [
   {
     name: "MacBook Pro 16-inch M3",
@@ -66,7 +78,6 @@ electronics = [
   }
 ]
 
-# Clothing Category
 clothing = [
   {
     name: "Levi's 501 Original Jeans",
@@ -118,7 +129,6 @@ clothing = [
   }
 ]
 
-# Home & Garden Category
 home_garden = [
   {
     name: "KitchenAid Stand Mixer",
@@ -170,7 +180,6 @@ home_garden = [
   }
 ]
 
-# Books Category
 books = [
   {
     name: "The Seven Husbands of Evelyn Hugo",
@@ -214,7 +223,6 @@ books = [
   }
 ]
 
-# Sports & Outdoors Category
 sports_outdoors = [
   {
     name: "Yeti Rambler 20oz Tumbler",
@@ -258,7 +266,6 @@ sports_outdoors = [
   }
 ]
 
-# Create all products
 all_products = electronics + clothing + home_garden + books + sports_outdoors
 
 all_products.each do |product_attrs|
@@ -266,7 +273,6 @@ all_products.each do |product_attrs|
   print "."
 end
 
-# Create some out-of-stock products for testing
 out_of_stock_products = [
   {
     name: "PlayStation 5 Console",
@@ -291,7 +297,6 @@ out_of_stock_products.each do |product_attrs|
   print "."
 end
 
-# Create some inactive products for testing
 inactive_products = [
   {
     name: "Discontinued Laptop Model",
@@ -310,15 +315,137 @@ inactive_products.each do |product_attrs|
 end
 
 puts "\n✅ Created #{Product.count} products!"
-puts "📊 Product breakdown:"
-puts "   - Electronics: #{Product.where(category: 'Electronics').count}"
-puts "   - Clothing: #{Product.where(category: 'Clothing').count}"
-puts "   - Home & Garden: #{Product.where(category: 'Home & Garden').count}"
-puts "   - Books: #{Product.where(category: 'Books').count}"
-puts "   - Sports & Outdoors: #{Product.where(category: 'Sports & Outdoors').count}"
-puts "   - In Stock: #{Product.where('stock_quantity > 0').count}"
-puts "   - Out of Stock: #{Product.where(stock_quantity: 0).count}"
-puts "   - Active: #{Product.where(active: true).count}"
-puts "   - Inactive: #{Product.where(active: false).count}"
+
+puts "Creating completed orders..."
+
+def create_order(user, products_data, status, days_ago = 0)
+  order = user.orders.create!(
+    email: user.email,
+    first_name: user.first_name,
+    last_name: user.last_name,
+    address_line_1: "#{rand(100..9999)} #{['Main St', 'Oak Ave', 'Pine Rd', 'Elm Dr'].sample}",
+    address_line_2: rand(1..10) > 7 ? "Apt #{rand(1..20)}" : nil,
+    city: ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix'].sample,
+    state: ['NY', 'CA', 'IL', 'TX', 'AZ'].sample,
+    postal_code: sprintf("%05d", rand(10000..99999)),
+    country: 'US',
+    status: status,
+    total_amount: 0, # Will be calculated
+    created_at: days_ago.days.ago,
+    updated_at: days_ago.days.ago
+  )
+
+  products_data.each do |product_data|
+    product = Product.find_by(name: product_data[:name])
+    next unless product
+
+    order.order_items.create!(
+      product: product,
+      quantity: product_data[:quantity],
+      unit_price: product.price,
+      total_price: product.price * product_data[:quantity]
+    )
+  end
+
+  order.update!(total_amount: order.order_items.sum(:total_price))
+  order
+end
+
+create_order(user1, [
+  { name: 'MacBook Pro 16-inch M3', quantity: 1 },
+  { name: 'Sony WH-1000XM5 Headphones', quantity: 1 }
+], 'delivered', 30)
+
+create_order(user1, [
+  { name: 'Levi\'s 501 Original Jeans', quantity: 2 },
+  { name: 'Nike Air Max 270 Sneakers', quantity: 1 },
+  { name: 'Champion Reverse Weave Hoodie', quantity: 1 }
+], 'delivered', 15)
+
+create_order(user1, [
+  { name: 'iPhone 15 Pro Max', quantity: 1 },
+  { name: 'Hydro Flask 32oz Water Bottle', quantity: 2 }
+], 'shipped', 3)
+
+create_order(user2, [
+  { name: 'KitchenAid Stand Mixer', quantity: 1 },
+  { name: 'Instant Pot Duo 7-in-1', quantity: 1 },
+  { name: 'The Seven Husbands of Evelyn Hugo', quantity: 1 }
+], 'delivered', 45)
+
+create_order(user2, [
+  { name: 'Samsung 65-inch QLED 4K TV', quantity: 1 },
+  { name: 'Nintendo Switch OLED', quantity: 1 },
+  { name: 'Patagonia Better Sweater Fleece', quantity: 1 }
+], 'processing', 7)
+
+puts "Creating current shopping carts..."
+
+current_cart_john = user1.orders.create!(
+  email: user1.email,
+  first_name: user1.first_name,
+  last_name: user1.last_name,
+  address_line_1: '',
+  city: '',
+  state: '',
+  postal_code: '',
+  country: 'US',
+  status: 'pending',
+  total_amount: 0
+)
+
+current_cart_john.order_items.create!([
+  {
+    product: Product.find_by(name: 'iPad Air 11-inch'),
+    quantity: 1,
+    unit_price: Product.find_by(name: 'iPad Air 11-inch').price
+  },
+  {
+    product: Product.find_by(name: 'Atomic Habits by James Clear'),
+    quantity: 2,
+    unit_price: Product.find_by(name: 'Atomic Habits by James Clear').price
+  }
+])
+
+current_cart_john.update!(total_amount: current_cart_john.order_items.sum { |item| item.unit_price * item.quantity })
+
+current_cart_jane = user2.orders.create!(
+  email: user2.email,
+  first_name: user2.first_name,
+  last_name: user2.last_name,
+  address_line_1: '',
+  city: '',
+  state: '',
+  postal_code: '',
+  country: 'US',
+  status: 'pending',
+  total_amount: 0
+)
+
+current_cart_jane.order_items.create!([
+  {
+    product: Product.find_by(name: 'Dyson V15 Detect Cordless Vacuum'),
+    quantity: 1,
+    unit_price: Product.find_by(name: 'Dyson V15 Detect Cordless Vacuum').price
+  }
+])
+
+current_cart_jane.update!(total_amount: current_cart_jane.order_items.sum { |item| item.unit_price * item.quantity })
+
+puts "✅ Created orders and shopping carts!"
+puts "📊 Order summary:"
+puts "   - Total orders: #{Order.count}"
+puts "   - Completed orders: #{Order.where.not(status: 'pending').count}"
+puts "   - Pending orders (carts): #{Order.where(status: 'pending').count}"
+puts "   - Total order items: #{OrderItem.count}"
+
+puts "\n👥 Test users created:"
+puts "   📧 john@example.com (password: password123)"
+puts "   📧 jane@example.com (password: password123)"
+
+puts "\n🛍️ Order status breakdown:"
+Order.group(:status).count.each do |status, count|
+  puts "   - #{status.capitalize}: #{count}"
+end
 
 puts "\n🎉 Seed data creation complete!"
