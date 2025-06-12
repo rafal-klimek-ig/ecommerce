@@ -10,9 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_12_090951) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_12_093101) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+  enable_extension "pg_trgm"
 
   create_table "order_items", force: :cascade do |t|
     t.bigint "order_id", null: false
@@ -54,9 +55,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_12_090951) do
     t.boolean "active", default: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index "to_tsvector('english'::regconfig, (((COALESCE(name, ''::character varying))::text || ' '::text) || COALESCE(description, ''::text)))", name: "products_search_idx", using: :gin
+    t.index ["active", "stock_quantity"], name: "products_available_idx", where: "((active = true) AND (stock_quantity > 0))"
     t.index ["active"], name: "index_products_on_active"
+    t.index ["category", "name"], name: "products_category_name_idx"
     t.index ["category"], name: "index_products_on_category"
     t.index ["name"], name: "index_products_on_name"
+    t.index ["name"], name: "products_name_trgm_idx", opclass: :gin_trgm_ops, using: :gin
   end
 
   create_table "users", force: :cascade do |t|
