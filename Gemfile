@@ -65,3 +65,4 @@ gem 'kaminari'
 gem "tailwindcss-rails"
 gem "ruby-enum"
 gem "devise", "~> 4.9"
+gem "letter_opener", group: :development
