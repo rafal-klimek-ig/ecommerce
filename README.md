@@ -1,24 +1,39 @@
-# README
+# How to run
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## Docker
 
-Things you may want to cover:
+1. Get docker
+2. Copy sample env vars to .env
+```
+cp .env.sample .env
+docker compose up
+```
 
-* Ruby version
+This should prepare and seed the database and get everything up
 
-* System dependencies
+## Linux/MacOS
 
-* Configuration
+Ruby is not set up to work on Windows from the get-go.
 
-* Database creation
+On linux/mac install ruby 3.3.0 first http://ruby-lang.org/en/documentation/installation/
 
-* Database initialization
+Once that's done install postgres on mac (or use postgres with docker)
 
-* How to run the test suite
+After both of these are done you can start installing project gems
+```
+cp .env.sample .env
+bundle install
+```
 
-* Services (job queues, cache servers, search engines, etc.)
+Then prepare the database
+```
+rake db:create
+rake db:migrate
+rake db:seed
+```
 
-* Deployment instructions
-
-* ...
+Finally, after all of that
+```
+rails s
+```
+and you can access the project from http://localhost:3000/
