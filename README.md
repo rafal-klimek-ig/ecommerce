@@ -37,3 +37,8 @@ Finally, after all of that
 rails s
 ```
 and you can access the project from http://localhost:3000/
+
+
+## Testing
+email: 'john@example.com'
+password: 'password123'
