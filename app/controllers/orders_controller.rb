@@ -49,8 +49,7 @@ class OrdersController < ApplicationController
 
     @subtotal = @order.order_items.sum(&:total_price)
     @shipping_cost = @subtotal >= 50 ? 0 : 9.99
-    @tax_amount = @subtotal * 0.08
-    @total_amount = @subtotal + @shipping_cost + @tax_amount
+    @total_amount = @subtotal + @shipping_cost
   end
 
   def remove_item
@@ -173,21 +172,52 @@ class OrdersController < ApplicationController
   end
 
   def create
-    @order = @current_order || current_user.orders.build
-
-    if @order.order_items.empty?
-      10.times { puts @order.id }
-      redirect_to cart_path, alert: 'Your cart is empty qwe.'
+    @order = @current_order
+    if @current_order.order_items.empty?
+      redirect_to orders_path, alert: 'Your cart is empty.'
       return
     end
 
-    @order.assign_attributes(order_params)
+    unless @current_order.status == Order::OrderStatus::PENDING
+      redirect_to orders_path, alert: 'This order cannot be finished.'
+      return
+    end
 
-    if @order.save
-      # NOTE: [RK] Add stripe payments
-      redirect_to @order, notice: 'Order was successfully created.'
+    # Calculate totals
+    subtotal = @current_order.order_items.sum(&:total_price)
+    shipping_cost = subtotal >= 50 ? 0 : 9.99
+    total_amount = subtotal + shipping_cost
+
+    # Update order with form data
+    @current_order.assign_attributes(order_params)
+    @current_order.total_amount = total_amount
+    @current_order.status = 'paid'
+
+    if @current_order.valid? && payment_params_valid?
+      begin
+        # Save the order first
+        @current_order.save!
+
+        # Create payment record
+        create_payment_record(total_amount)
+
+        # Reduce inventory for all items
+        @current_order.order_items.each do |item|
+          product = item.product
+          product.update!(stock_quantity: product.stock_quantity - item.quantity)
+        end
+
+        redirect_to @current_order, notice: 'Order was successfully placed!'
+      rescue => e
+        Rails.logger.error "Order creation error: #{e.message}"
+        @current_order.status = 'pending'
+        flash.now[:alert] = 'There was an error processing your order. Please try again.'
+        redirect_to '/checkout', status: :unprocessable_entity
+      end
     else
-      render 'cart', status: :unprocessable_entity
+      @current_order.status = 'pending'
+      flash.now[:alert] = 'Please check your order details and payment information.'
+      redirect_to '/checkout', status: :unprocessable_entity
     end
   end
 
@@ -225,10 +255,96 @@ class OrdersController < ApplicationController
     redirect_back(fallback_location: path)
   end
 
-  def order_params
+  def create_payment_record(total_amount)
+    card_number = payment_params[:card_number].gsub(/\s/, '')
+    card_expiry = payment_params[:card_expiry]
+    exp_month, exp_year = card_expiry.split('/')
+
+    PaymentRecord.create!(
+      order: @current_order,
+      user: current_user,
+      payment_method: 'card',
+      amount: total_amount,
+      currency: 'usd',
+      status: 'succeeded',
+      processed_at: Time.current,
+      card_last_four: card_number.last(4),
+      card_brand: detect_card_brand(card_number),
+      card_exp_month: exp_month.rjust(2, '0'),
+      card_exp_year: "20#{exp_year}"
+    )
+  end
+
+  def detect_card_brand(card_number)
+    case card_number
+    when /^4/ then 'visa'
+    when /^5[1-5]/, /^222[1-9]|22[3-9][0-9]|2[3-6][0-9]{2}|27[01][0-9]|2720/ then 'mastercard'
+    else 'unknown'
+    end
+  end
+
+  def payment_params_valid?
+    card_number = payment_params[:card_number]&.gsub(/\s/, '')
+    card_expiry = payment_params[:card_expiry]
+    card_cvv = payment_params[:card_cvv]
+    cardholder_name = payment_params[:cardholder_name]
+
+    errors = []
+
+    if card_number.blank? || card_number.length < 13 || card_number.length > 19
+      errors << "Card number is invalid"
+    end
+
+    if card_expiry.blank? || !card_expiry.match(/\A\d{2}\/\d{2}\z/)
+      errors << "Expiry date is invalid"
+    elsif card_expiry.present?
+      month, year = card_expiry.split('/')
+      if month.to_i < 1 || month.to_i > 12
+        errors << "Expiry month is invalid"
+      end
+
+      current_year = Date.current.year % 100
+      current_month = Date.current.month
+      if year.to_i < current_year || (year.to_i == current_year && month.to_i < current_month)
+        errors << "Card has expired"
+      end
+    end
+
+    if card_cvv.blank? || card_cvv.length < 3 || card_cvv.length > 4
+      errors << "Security code is invalid"
+    end
+
+    if cardholder_name.blank?
+      errors << "Cardholder name is required"
+    end
+
+    if errors.any?
+      @current_order.errors.add(:base, errors.join(', '))
+      return false
+    end
+
+    true
+  end
+
+  def base_create_params
     params.require(:order).permit(
-      :address_line_1, :address_line_2, :city, :state, :postal_code,
-      :notes
+      :address_line_1, :address_line_2, :city, :postal_code, :notes,
+      :card_number, :cardholder_name, :card_expiry, :card_cvv
+    )
+  end
+
+  def order_params
+    # base_create_params[
+    #   :address_line_1, :address_line_2, :city, :postal_code, :notes
+    # ]
+    params.require(:order).permit(
+      :address_line_1, :address_line_2, :city, :postal_code, :notes
+    )
+  end
+
+  def payment_params
+    params.require(:order).permit(
+      :card_number, :cardholder_name, :card_expiry, :card_cvv
     )
   end
 end

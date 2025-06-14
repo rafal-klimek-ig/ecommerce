@@ -89,7 +89,7 @@
                     <h3 class="text-lg font-semibold text-gray-900">
                       <%= link_to "Order ##{order.id.to_s.rjust(6, '0')}",
                                  order_path(order),
-                                 class: "hover:text-blue-600" %>
+                                 class: "hover:text-blue-600", data: { turbo_frame: "_top" } %>
                     </h3>
 
                     <!-- Status Badge -->
@@ -174,7 +174,7 @@
                   <!-- Order Actions -->
                   <div class="flex items-center space-x-3">
                     <%= link_to "View Details", order_path(order),
-                               class: "text-blue-600 hover:text-blue-800 text-sm font-medium" %>
+                               class: "text-blue-600 hover:text-blue-800 text-sm font-medium", data: { turbo_frame: "_top" } %>
 
                     <% if order.can_be_cancelled? %>
                       <%= button_to "Cancel", cancel_order_path(order),

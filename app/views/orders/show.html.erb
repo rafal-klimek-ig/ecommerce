@@ -243,13 +243,6 @@
               </span>
             </div>
 
-            <div class="flex justify-between text-sm">
-              <span class="text-gray-600">Tax</span>
-              <span class="text-gray-900">
-                $<%= '%.2f' % (@order.order_items.sum(&:total_price) * 0.08) %>
-              </span>
-            </div>
-
             <div class="border-t pt-3">
               <div class="flex justify-between text-base font-semibold">
                 <span class="text-gray-900">Total</span>

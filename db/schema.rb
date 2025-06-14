@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_12_093101) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_14_130455) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -43,6 +43,28 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_12_093101) do
     t.index ["status"], name: "index_orders_on_status"
     t.index ["stripe_payment_intent_id"], name: "index_orders_on_stripe_payment_intent_id"
     t.index ["user_id"], name: "index_orders_on_user_id"
+  end
+
+  create_table "payment_records", force: :cascade do |t|
+    t.bigint "order_id", null: false
+    t.bigint "user_id", null: false
+    t.string "payment_method", default: "card", null: false
+    t.string "card_last_four", limit: 4
+    t.string "card_brand"
+    t.string "card_exp_month", limit: 2
+    t.string "card_exp_year", limit: 4
+    t.string "status", default: "pending", null: false
+    t.decimal "amount", precision: 10, scale: 2, null: false
+    t.string "currency", default: "usd"
+    t.datetime "processed_at"
+    t.text "failure_reason"
+    t.json "stripe_metadata"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["order_id"], name: "index_payment_records_on_order_id"
+    t.index ["status"], name: "index_payment_records_on_status"
+    t.index ["user_id", "created_at"], name: "index_payment_records_on_user_id_and_created_at"
+    t.index ["user_id"], name: "index_payment_records_on_user_id"
   end
 
   create_table "products", force: :cascade do |t|
@@ -79,4 +101,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_12_093101) do
   add_foreign_key "order_items", "orders"
   add_foreign_key "order_items", "products"
   add_foreign_key "orders", "users"
+  add_foreign_key "payment_records", "orders"
+  add_foreign_key "payment_records", "users"
 end

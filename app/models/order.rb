@@ -65,16 +65,13 @@ class Order < ApplicationRecord
   belongs_to :user
   has_many :order_items, dependent: :destroy
   has_many :products, through: :order_items
+  has_many :payment_records, dependent: :destroy
 
   validates :address_line_1, presence: true, length: { minimum: 5, maximum: 100 },
             unless: -> { status.in?(OrderStatus.predelivery_statuses) }
   validates :city, presence: true, length: { minimum: 2, maximum: 50 },
             unless: -> { status.in?(OrderStatus.predelivery_statuses) }
-  validates :state, presence: true, length: { minimum: 2, maximum: 50 },
-            unless: -> { status.in?(OrderStatus.predelivery_statuses) }
   validates :postal_code, presence: true, length: { minimum: 3, maximum: 20 },
-            unless: -> { status.in?(OrderStatus.predelivery_statuses) }
-  validates :country, presence: true, length: { minimum: 2, maximum: 50 },
             unless: -> { status.in?(OrderStatus.predelivery_statuses) }
   validates :total_amount, presence: true,
                           numericality: { greater_than: 0 },

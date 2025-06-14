@@ -1,56 +1,52 @@
 <div class="p-6 space-y-4" id="cart_total">
-<!-- Subtotal -->
-<div class="flex justify-between text-base">
-  <span class="text-gray-700">Subtotal (<%= pluralize(order_items.sum(&:quantity), 'item') %>)</span>
-  <span class="font-medium text-gray-900">
-    $<%= '%.2f' % order_items.sum(&:total_price) %>
-  </span>
-</div>
-
-<!-- Shipping -->
-<div class="flex justify-between text-base">
-  <span class="text-gray-700">Shipping</span>
-  <span class="font-medium text-gray-900">
-    <span class="text-green-600">FREE</span>
-  </span>
-</div>
-
-<!-- Free shipping progress -->
-<% if order_items.sum(&:total_price) < 50 %>
-  <div class="text-sm text-gray-600 bg-blue-50 p-3 rounded">
-    <p class="font-medium">Add $<%= '%.2f' % (50 - order_items.sum(&:total_price)) %> more for FREE shipping!</p>
-    <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
-      <div class="bg-blue-600 h-2 rounded-full" style="width: <%= [(order_items.sum(&:total_price) / 50.0 * 100), 100].min %>%"></div>
-    </div>
-  </div>
-<% end %>
-
-<!-- Tax -->
-<div class="flex justify-between text-base">
-  <span class="text-gray-700">Estimated Tax</span>
-  <span class="font-medium text-gray-900">
-    $<%= '%.2f' % (order_items.sum(&:total_price) * 0.08) %>
-  </span>
-</div>
-
-<div class="border-t pt-4">
-  <div class="flex justify-between text-lg font-semibold">
-    <span class="text-gray-900">Total</span>
-    <span class="text-gray-900">
-      <%
-        subtotal = order_items.sum(&:total_price)
-        shipping = subtotal >= 50 ? 0 : 9.99
-        tax = subtotal * 0.08
-        total = subtotal + shipping + tax
-      %>
-      $<%= '%.2f' % total %>
+  <!-- Subtotal -->
+  <div class="flex justify-between text-base">
+    <span class="text-gray-700">Subtotal (<%= pluralize(order_items.sum(&:quantity), 'item') %>)</span>
+    <span class="font-medium text-gray-900">
+      $<%= '%.2f' % order_items.sum(&:total_price) %>
     </span>
   </div>
-</div>
 
-<!-- Checkout Button -->
-<div class="mt-6">
-  <%= link_to "Proceed to Checkout", checkout_path,
-             class: "w-full bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-center block transition-colors duration-200" %>
-</div>
+  <!-- Shipping -->
+  <div class="flex justify-between text-base">
+    <span class="text-gray-700">Shipping</span>
+    <span class="font-medium text-gray-900">
+      <% if order_items.sum(&:total_price) >= 50 %>
+        <span class="text-green-600">FREE</span>
+      <% else %>
+        $9.99
+      <% end %>
+    </span>
+  </div>
+
+  <!-- Free shipping progress -->
+  <% if order_items.sum(&:total_price) < 50 %>
+    <div class="text-sm text-gray-600 bg-blue-50 p-3 rounded">
+      <p class="font-medium">Add $<%= '%.2f' % (50 - order_items.sum(&:total_price)) %> more for FREE shipping!</p>
+      <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+        <div class="bg-blue-600 h-2 rounded-full" style="width: <%= [(order_items.sum(&:total_price) / 50.0 * 100), 100].min %>%"></div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Total -->
+  <div class="border-t pt-4">
+    <div class="flex justify-between text-lg font-semibold">
+      <span class="text-gray-900">Total</span>
+      <span class="text-gray-900">
+        <%
+          subtotal = order_items.sum(&:total_price)
+          shipping = subtotal >= 50 ? 0 : 9.99
+          total = subtotal + shipping
+        %>
+        $<%= '%.2f' % total %>
+      </span>
+    </div>
+  </div>
+
+  <!-- Checkout Button -->
+  <div class="mt-6">
+    <%= link_to "Proceed to Checkout", checkout_path,
+               class: "w-full bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-center block transition-colors duration-200" %>
+  </div>
 </div>
