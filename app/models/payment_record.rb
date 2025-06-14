@@ -66,8 +66,17 @@ class PaymentRecord < ApplicationRecord
       "#{card_brand.titleize} ending in #{card_last_four}"
     end
 
-    def billing_full_name
-      [billing_first_name, billing_last_name].compact.join(' ')
+
+    def succeeded?
+      status == 'succeeded'
+    end
+
+    def refunded?
+      status == 'refunded'
+    end
+
+    def partially_refunded?
+      status == 'partially_refunded'
     end
 
     def stripe_payment_url

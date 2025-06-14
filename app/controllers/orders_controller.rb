@@ -132,7 +132,7 @@ class OrdersController < ApplicationController
     quantity = params[:quantity]&.to_i || 1
 
     unless @product.active? && @product.available_stock?(quantity)
-      redirect_back_or_to products_path, alert: 'Product is not available or insufficient stock.'
+      redirect_to products_path, alert: 'Product is not available or insufficient stock.'
       return
     end
 
@@ -207,17 +207,19 @@ class OrdersController < ApplicationController
           product.update!(stock_quantity: product.stock_quantity - item.quantity)
         end
 
+        OrderMailer.confirmation_email(@current_order).deliver_now
+
         redirect_to @current_order, notice: 'Order was successfully placed!'
       rescue => e
         Rails.logger.error "Order creation error: #{e.message}"
         @current_order.status = 'pending'
         flash.now[:alert] = 'There was an error processing your order. Please try again.'
-        redirect_to '/checkout', status: :unprocessable_entity
+        redirect_to '/checkout'
       end
     else
       @current_order.status = 'pending'
       flash.now[:alert] = 'Please check your order details and payment information.'
-      redirect_to '/checkout', status: :unprocessable_entity
+      redirect_to '/checkout'
     end
   end
 
@@ -249,10 +251,6 @@ class OrdersController < ApplicationController
         total_amount: 0
       )
     end
-  end
-
-  def redirect_back_or_to(path)
-    redirect_back(fallback_location: path)
   end
 
   def create_payment_record(total_amount)
