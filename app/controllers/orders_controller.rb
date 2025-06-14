@@ -213,12 +213,12 @@ class OrdersController < ApplicationController
       rescue => e
         Rails.logger.error "Order creation error: #{e.message}"
         @current_order.status = 'pending'
-        flash.now[:alert] = 'There was an error processing your order. Please try again.'
+        flash[:alert] = 'There was an error processing your order. Please try again.'
         redirect_to '/checkout'
       end
     else
       @current_order.status = 'pending'
-      flash.now[:alert] = 'Please check your order details and payment information.'
+      flash[:alert] = 'Please check your order details and payment information.'
       redirect_to '/checkout'
     end
   end
