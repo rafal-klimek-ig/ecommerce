@@ -56,18 +56,19 @@
 
         <!-- Quick Actions -->
         <div class="flex flex-col space-y-1">
-          <% if current_user %>
-            <% if product.in_stock? %>
-              <button class="add-to-cart-btn px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      data-product-id="<%= product.id %>"
-                      onclick="event.preventDefault(); addToCart(<%= product.id %>)">
-                Add to Cart
-              </button>
-            <% else %>
-              <button class="px-3 py-1 bg-gray-300 text-gray-500 text-sm rounded cursor-not-allowed" disabled>
-                Out of Stock
-              </button>
+          <% if product.in_stock? %>
+            <% if user_signed_in? %>
+              <%= form_with url: add_item_orders_path, method: :post, local: true, class: "inline", data: { turbo_frame: "cart_badge", turbo_action: "advance" } do |form| %>
+                <%= form.hidden_field :product_id, value: product.id %>
+                <%= form.hidden_field :quantity, value: 1 %>
+                <%= form.submit "Add to Cart",
+                              class: "add-to-cart-btn px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+              <% end %>
             <% end %>
+          <% else %>
+            <button class="px-3 py-1 bg-gray-300 text-gray-500 text-sm rounded cursor-not-allowed" disabled>
+              Out of Stock
+            </button>
           <% end %>
 
           <span class="text-xs text-gray-500 text-center">
@@ -78,11 +79,3 @@
       </div>
     </div>
 </div>
-
-<script>
-  function addToCart(productId) {
-    // This will be implemented when we create the cart functionality
-    console.log('Adding product', productId, 'to cart');
-    // You can implement this with Turbo Stream or Stimulus
-  }
-</script>

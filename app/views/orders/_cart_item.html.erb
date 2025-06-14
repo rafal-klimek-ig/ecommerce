@@ -1,0 +1,92 @@
+<div id="order_item_<%= item.id %>" class="p-6 flex items-center space-x-4" data-order-item-id="<%= item.id %>">
+
+<!-- Product Image -->
+<div class="flex-shrink-0">
+  <%= link_to product_path(item.product), data: { turbo_frame: "_top" } do %>
+    <% if item.product.image_url.present? %>
+      <%= image_tag item.product.image_url,
+                   alt: item.product.name,
+                   class: "h-20 w-20 object-cover rounded-md" %>
+    <% else %>
+      <div class="h-20 w-20 bg-gray-200 rounded-md flex items-center justify-center">
+        <svg class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      </div>
+    <% end %>
+  <% end %>
+</div>
+
+<!-- Product Details -->
+<div class="flex-1 min-w-0">
+  <div class="flex items-start justify-between">
+    <div>
+      <h3 class="text-base font-medium text-gray-900">
+        <%= link_to item.product.name, product_path(item.product),
+                   class: "hover:text-blue-600",
+                   data: { turbo_frame: "_top" } %>
+      </h3>
+      <p class="text-sm text-gray-500 mt-1">
+        <%= item.product.category %>
+      </p>
+      <p class="text-sm font-medium text-gray-900 mt-1">
+        <%= item.formatted_unit_price %> each
+      </p>
+    </div>
+
+    <!-- Remove Item Button -->
+    <%= button_to remove_item_orders_path,
+                 method: :delete,
+                 params: { order_item_id: item.id },
+                 data: {
+                   confirm: "Remove #{item.product.name} from cart?",
+                   turbo_method: :delete
+                 },
+                 class: "text-red-600 hover:text-red-800 text-sm" do %>
+      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+      </svg>
+    <% end %>
+  </div>
+
+  <!-- Quantity and Price -->
+  <div class="flex items-center justify-between mt-4">
+    <div class="flex items-center space-x-2">
+      <label for="quantity_<%= item.id %>" class="text-sm text-gray-700">Qty:</label>
+
+      <%= form_with url: update_item_orders_path,
+                   method: :patch,
+                   local: true,
+                   data: { controller: "auto-submit", turbo_frame: "cart_item" },
+                   class: "inline-flex items-center" do |form| %>
+        <%= form.hidden_field :order_item_id, value: item.id %>
+        <%= form.number_field :quantity,
+                             value: item.quantity,
+                             min: 1,
+                             max: [item.product.stock_quantity, 100].min,
+                             id: "quantity_#{item.id}",
+                             class: "w-16 px-2 py-1 border border-gray-300 rounded text-center text-sm",
+                             data: { action: "change->auto-submit#submit" } %>
+      <% end %>
+
+      <span class="text-xs text-gray-500">
+        (<%= item.product.stock_quantity %> available)
+      </span>
+    </div>
+
+    <div class="text-right">
+      <p class="text-lg font-semibold text-gray-900">
+        <%= item.formatted_total_price %>
+      </p>
+    </div>
+  </div>
+
+  <!-- Stock Warning -->
+  <% unless item.product.available_stock?(item.quantity) %>
+    <div class="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded">
+      ⚠️ Only <%= item.product.stock_quantity %> items available. Please reduce quantity.
+    </div>
+  <% end %>
+</div>
+</div>

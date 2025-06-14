@@ -32,11 +32,7 @@
                   d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.1 5H19M7 13v8a2 2 0 002 2h10a2 2 0 002-2v-8m-9 4h4"></path>
           </svg>
           <!-- Cart Badge (if items in current order) -->
-          <% if user_signed_in? && current_order&.item_count && current_order&.item_count > 0 %>
-            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-              <%= current_order.item_count %>
-            </span>
-          <% end %>
+          <%= render 'shared/cart_badge' %>
         <% end %>
 
         <!-- User Menu -->

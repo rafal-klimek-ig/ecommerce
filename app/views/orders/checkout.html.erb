@@ -49,37 +49,94 @@
                 </div>
 
                 <div>
-                  <%= form.label :state, "State", class: "block text-sm font-medium text-gray-700 mb-2" %>
-                  <%= form.select :state,
-                                 options_for_select([
-                                   ['Select State', ''],
-                                   ['Alabama', 'AL'], ['Alaska', 'AK'], ['Arizona', 'AZ'], ['Arkansas', 'AR'],
-                                   ['California', 'CA'], ['Colorado', 'CO'], ['Connecticut', 'CT'], ['Delaware', 'DE'],
-                                   ['Florida', 'FL'], ['Georgia', 'GA'], ['Hawaii', 'HI'], ['Idaho', 'ID'],
-                                   ['Illinois', 'IL'], ['Indiana', 'IN'], ['Iowa', 'IA'], ['Kansas', 'KS'],
-                                   ['Kentucky', 'KY'], ['Louisiana', 'LA'], ['Maine', 'ME'], ['Maryland', 'MD'],
-                                   ['Massachusetts', 'MA'], ['Michigan', 'MI'], ['Minnesota', 'MN'], ['Mississippi', 'MS'],
-                                   ['Missouri', 'MO'], ['Montana', 'MT'], ['Nebraska', 'NE'], ['Nevada', 'NV'],
-                                   ['New Hampshire', 'NH'], ['New Jersey', 'NJ'], ['New Mexico', 'NM'], ['New York', 'NY'],
-                                   ['North Carolina', 'NC'], ['North Dakota', 'ND'], ['Ohio', 'OH'], ['Oklahoma', 'OK'],
-                                   ['Oregon', 'OR'], ['Pennsylvania', 'PA'], ['Rhode Island', 'RI'], ['South Carolina', 'SC'],
-                                   ['South Dakota', 'SD'], ['Tennessee', 'TN'], ['Texas', 'TX'], ['Utah', 'UT'],
-                                   ['Vermont', 'VT'], ['Virginia', 'VA'], ['Washington', 'WA'], ['West Virginia', 'WV'],
-                                   ['Wisconsin', 'WI'], ['Wyoming', 'WY']
-                                 ], @order.state),
-                                 {},
-                                 {
-                                   class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
-                                   required: true
-                                 } %>
-                </div>
-
-                <div>
                   <%= form.label :postal_code, "ZIP Code", class: "block text-sm font-medium text-gray-700 mb-2" %>
                   <%= form.text_field :postal_code,
                                      placeholder: "12345",
                                      class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
                                      required: true %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Credit Card Information -->
+          <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200">
+              <h2 class="text-lg font-semibold text-gray-900">Payment Information</h2>
+              <p class="text-sm text-gray-600 mt-1">Your payment information is secure and encrypted</p>
+            </div>
+
+            <div class="p-6 space-y-4">
+              <!-- Card Number -->
+              <div>
+                <%= form.label :card_number, "Card Number", class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <%= form.text_field :card_number,
+                                   placeholder: "1234 5678 9012 3456",
+                                   class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
+                                   maxlength: "19",
+                                   data: {
+                                     controller: "card-formatter",
+                                     action: "input->card-formatter#formatCard"
+                                   },
+                                   required: true %>
+              </div>
+
+              <!-- Cardholder Name -->
+              <div>
+                <%= form.label :cardholder_name, "Cardholder Name", class: "block text-sm font-medium text-gray-700 mb-2" %>
+                <%= form.text_field :cardholder_name,
+                                   placeholder: "John Doe",
+                                   class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
+                                   required: true %>
+              </div>
+
+              <!-- Expiry and CVV -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <%= form.label :card_expiry, "Expiry Date", class: "block text-sm font-medium text-gray-700 mb-2" %>
+                  <%= form.text_field :card_expiry,
+                                     placeholder: "MM/YY",
+                                     class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
+                                     maxlength: "5",
+                                     data: {
+                                       controller: "card-formatter",
+                                       action: "input->card-formatter#formatExpiry"
+                                     },
+                                     required: true %>
+                </div>
+
+                <div>
+                  <%= form.label :card_cvv, "Security Code (CVV)", class: "block text-sm font-medium text-gray-700 mb-2" %>
+                  <div class="relative">
+                    <%= form.text_field :card_cvv,
+                                       placeholder: "123",
+                                       class: "w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
+                                       maxlength: "4",
+                                       data: {
+                                         controller: "card-formatter",
+                                         action: "input->card-formatter#formatCVV"
+                                       },
+                                       required: true %>
+                    <!-- CVV Help Icon -->
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                      <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                  </div>
+                  <p class="text-xs text-gray-500 mt-1">3-4 digits on the back of your card</p>
+                </div>
+              </div>
+
+              <!-- Security Notice -->
+              <div class="bg-gray-50 p-3 rounded-md">
+                <div class="flex items-center">
+                  <svg class="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                  <p class="text-sm text-gray-700">
+                    <span class="font-medium">Secure Payment:</span> Your card information is encrypted and secure
+                  </p>
                 </div>
               </div>
             </div>

@@ -43,20 +43,10 @@ class OrdersController < ApplicationController
 
     if unavailable_items.any?
       flash[:alert] = "Some items are no longer available: #{unavailable_items.join(', ')}. Please review your cart."
-      redirect_to current_order_path
+      redirect_to cart_path
       return
     end
 
-    # Pre-fill address with user information if available
-    # if @order.address_line_1.blank? && current_user
-    #   @order.assign_attributes(
-    #     email: current_user.email,
-    #     first_name: current_user.first_name,
-    #     last_name: current_user.last_name
-    #   )
-    # end
-
-    # Calculate totals for display
     @subtotal = @order.order_items.sum(&:total_price)
     @shipping_cost = @subtotal >= 50 ? 0 : 9.99
     @tax_amount = @subtotal * 0.08
@@ -81,10 +71,10 @@ class OrdersController < ApplicationController
     end
 
     flash[:notice] = "#{product_name} removed from cart."
-    redirect_to current_order_path
+    redirect_to cart_path
   rescue ActiveRecord::RecordNotFound
     flash[:alert] = "Item not found in your cart."
-    redirect_to current_order_path
+    redirect_to cart_path
   end
 
   def update_item
@@ -125,10 +115,10 @@ class OrdersController < ApplicationController
       # order.destroy  # Uncomment if you want to delete empty orders
     end
 
-    redirect_to current_order_path
+    redirect_to cart_path
   rescue ActiveRecord::RecordNotFound
     flash[:alert] = "Item not found in your cart."
-    redirect_to current_order_path
+    redirect_to cart_path
   end
 
   def cart
@@ -159,7 +149,8 @@ class OrdersController < ApplicationController
         flash[:alert] = "Cannot add more items. Only #{@product.stock_quantity} available."
       end
     else
-      @current_order.order_items.create!(
+      @append_new_item = true
+      @order_item = @current_order.order_items.create!(
         product: @product,
         quantity: quantity,
         unit_price: @product.price
@@ -168,9 +159,15 @@ class OrdersController < ApplicationController
     end
 
     @current_order.save!
+    @order_items = @current_order.order_items
 
     respond_to do |format|
-      format.html { redirect_to products_path }
+      format.html { redirect_back(fallback_location: products_path) }
+      format.turbo_stream do
+        puts(:asdqwe)
+        turbo_stream.replace("cart_badge",
+                              partial: "shared/cart_badge")
+      end
       format.json { render json: { success: true, message: flash[:notice] } }
     end
   end

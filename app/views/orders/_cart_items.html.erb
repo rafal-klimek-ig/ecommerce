@@ -1,0 +1,5 @@
+<div id="cart_items" class="divide-y divide-gray-200">
+<% order_items.each do |item| %>
+<%= render partial: 'orders/cart_item', locals: { item: item } %>
+<% end %>
+</div>

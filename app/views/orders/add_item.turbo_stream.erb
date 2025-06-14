@@ -1,0 +1,21 @@
+<% if @append_new_item %>
+  <%= turbo_stream.append "cart_items" do %>
+    <%= render partial: "orders/cart_item", locals: { item: @order_item } %>
+  <% end %>
+<% else %>
+  <%= turbo_stream.replace dom_id(@order_item) do %>
+    <%= render partial: "orders/cart_item", locals: { item: @order_item } %>
+  <% end %>
+<% end %>
+
+<%= turbo_stream.update "cart_badge" do %>
+  <%= render partial: "shared/cart_badge", locals: { cart: @current_order } %>
+<% end %>
+
+<%= turbo_stream.update "cart_total" do %>
+  <%= render partial: "orders/cart_total", locals: { order_items: @order_items } %>
+<% end %>
+
+<%= turbo_stream.replace "flash_messages" do %>
+  <%= render partial: "shared/flash_messages", locals: { notice: "Item added to cart!", alert: nil } %>
+<% end %>
